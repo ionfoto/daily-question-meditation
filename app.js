@@ -130,6 +130,9 @@ const meditation = {
   },
 
   start() {
+    // Разблокировать аудио строго внутри касания (требование iOS).
+    ambient.unlock();
+
     this.remaining = this.minutes * 60;
     this.running = true;
     this.updateDisplay(this.remaining);
