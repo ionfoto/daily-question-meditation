@@ -1,5 +1,5 @@
 // Service worker: кэширует приложение, чтобы оно работало без интернета.
-const CACHE = "vopros-dnya-v4";
+const CACHE = "vopros-dnya-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -29,9 +29,17 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+// Стратегия «сначала сеть»: при наличии интернета всегда свежая версия,
+// офлайн — запасной вариант из кэша.
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request))
+    fetch(e.request)
+      .then((resp) => {
+        const copy = resp.clone();
+        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+        return resp;
+      })
+      .catch(() => caches.match(e.request))
   );
 });

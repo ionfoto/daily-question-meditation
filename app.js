@@ -195,5 +195,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Регистрация service worker для офлайн-работы.
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
+    // Когда активируется новая версия — один раз перезагружаем страницу.
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
   }
 });
