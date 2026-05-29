@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Вопрос дня</title>
+  <meta name="theme-color" content="#0e1726" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Вопрос дня" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <!-- Экран: Вопрос дня -->
+    <section id="screen-question" class="screen active">
+      <div class="date" id="todayDate"></div>
+      <div class="question-wrap">
+        <div class="label">Вопрос дня</div>
+        <h1 class="question" id="questionText">…</h1>
+      </div>
+      <div class="reflection">
+        <textarea id="reflectionInput" placeholder="Запишите свои мысли… (сохраняется только на этом телефоне)"></textarea>
+        <div class="saved-hint" id="savedHint"></div>
+      </div>
+    </section>
+
+    <!-- Экран: Медитация -->
+    <section id="screen-meditate" class="screen">
+      <div class="med-inner">
+        <div class="label">Медитация</div>
+
+        <div class="timer-display" id="timerDisplay">05:00</div>
+
+        <div class="breath-circle" id="breathCircle"></div>
+
+        <div class="controls" id="setupControls">
+          <div class="minutes-row" id="minutesRow"></div>
+
+          <div class="sound-label">Звук</div>
+          <div class="sound-row" id="soundRow"></div>
+
+          <button class="btn-primary" id="startBtn">Начать</button>
+        </div>
+
+        <div class="controls running hidden" id="runningControls">
+          <button class="btn-ghost" id="stopBtn">Завершить</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Нижняя навигация -->
+  <nav class="tabbar">
+    <button class="tab active" data-screen="screen-question">
+      <span class="tab-icon">❔</span>
+      <span class="tab-text">Вопрос</span>
+    </button>
+    <button class="tab" data-screen="screen-meditate">
+      <span class="tab-icon">🧘</span>
+      <span class="tab-text">Медитация</span>
+    </button>
+  </nav>
+
+  <script src="questions.js"></script>
+  <script src="sound.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
