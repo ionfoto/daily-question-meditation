@@ -116,14 +116,19 @@ body { -webkit-user-select: none; user-select: none; }
 .saved-hint.show { opacity: 1; }
 
 /* ===== Медитация ===== */
-#screen-meditate.active { justify-content: flex-start; }
+#screen-meditate { display: none; }
+#screen-meditate.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+}
 .med-inner { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
 
 .timer-display {
-  font-size: 68px;
+  font-size: 46px;
   font-weight: 200;
   font-variant-numeric: tabular-nums;
-  margin: 10px 0 22px;
   letter-spacing: 0.01em;
   background: linear-gradient(180deg, #ffffff 0%, #c7c8e2 100%);
   -webkit-background-clip: text;
@@ -133,13 +138,29 @@ body { -webkit-user-select: none; user-select: none; }
 
 .breath-circle {
   position: relative;
-  width: 190px;
-  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  margin: 6px 0 34px;
+  margin: 8px 0 30px;
   background:
     radial-gradient(circle at 50% 38%, rgba(157,139,255,0.55), rgba(94,215,208,0.16) 55%, transparent 72%);
   border: 1px solid var(--border-strong);
+}
+/* Переливающийся ореол: вращающийся конический градиент. */
+.breath-circle::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    #9d8bff, #6aa6ff, #5ed7d0, #9d8bff, #c08bff, #5ed7d0, #9d8bff);
+  filter: blur(7px);
+  opacity: 0.55;
+  z-index: -1;
+  animation: shimmer 7s linear infinite;
 }
 .breath-circle::after {
   content: "";
@@ -149,43 +170,83 @@ body { -webkit-user-select: none; user-select: none; }
   background: var(--grad-accent);
   opacity: 0.16;
   filter: blur(22px);
-  z-index: -1;
+  z-index: -2;
+}
+@keyframes shimmer {
+  to { transform: rotate(360deg); }
 }
 .breath-circle.breathing { animation: breathe 11s ease-in-out infinite; }
 @keyframes breathe {
-  0%, 100% { transform: scale(0.76); opacity: 0.85; }
-  45%      { transform: scale(1.12); opacity: 1; }
+  0%, 100% { transform: scale(0.82); }
+  45%      { transform: scale(1.08); }
 }
 
 .controls { width: 100%; max-width: 360px; }
+.controls.running { display: flex; flex-direction: column; align-items: center; }
 .controls.hidden { display: none; }
 
-.minutes-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
-.min-chip {
-  min-width: 62px;
-  padding: 15px 6px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+/* ===== Пикер минут в стиле часов iPhone ===== */
+.picker {
+  position: relative;
+  height: 162px; /* 3 строки по 54px */
+  margin: 8px 0 26px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 28%, #000 72%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 28%, #000 72%, transparent);
+}
+.picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 54px 0; /* чтобы первый/последний пункт вставали по центру */
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.picker-list::-webkit-scrollbar { display: none; }
+.picker-list li {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--muted);
+  opacity: 0.4;
+  transition: opacity 0.18s, transform 0.18s, color 0.18s;
+}
+.picker-list li.on {
+  opacity: 1;
   color: var(--text);
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  font-size: 30px;
+  font-weight: 700;
+  transform: scale(1.05);
 }
-.min-chip .unit { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 500; }
-.min-chip.selected {
-  border-color: transparent;
-  background: var(--grad-accent);
-  color: #0c0b16;
+/* Центральная полоса выбора. */
+.picker-band {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 116px;
+  height: 50px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  pointer-events: none;
 }
-.min-chip.selected .unit { color: rgba(12, 11, 22, 0.65); }
+.picker-unit {
+  position: absolute;
+  left: calc(50% + 44px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--muted);
+  pointer-events: none;
+}
 
-.sound-label {
-  font-size: 12px; color: var(--muted); margin-bottom: 12px;
-  letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
-}
-.sound-row { display: flex; gap: 9px; justify-content: center; margin-bottom: 34px; flex-wrap: wrap; }
+.sound-row { display: flex; gap: 9px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
 .sound-chip {
   padding: 11px 17px;
   border-radius: 999px;
@@ -256,7 +317,7 @@ body { -webkit-user-select: none; user-select: none; }
   cursor: pointer;
   transition: color 0.2s;
 }
-.tab-icon { font-size: 22px; line-height: 1; opacity: 0.5; transition: opacity 0.2s; }
+.tab-icon { font-size: 30px; line-height: 1; opacity: 0.5; transition: opacity 0.2s; }
 .tab-text { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
 .tab.active { color: var(--accent); }
 .tab.active .tab-icon { opacity: 1; }

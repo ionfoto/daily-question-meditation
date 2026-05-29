@@ -70,12 +70,15 @@ const meditation = {
   running: false,
 
   el: {},
+  ITEM_H: 54,
+  MAX_MIN: 60,
 
   init() {
     this.el = {
       display: document.getElementById("timerDisplay"),
       circle: document.getElementById("breathCircle"),
-      minutesRow: document.getElementById("minutesRow"),
+      picker: document.getElementById("minutePicker"),
+      pickerList: document.getElementById("pickerList"),
       soundRow: document.getElementById("soundRow"),
       setup: document.getElementById("setupControls"),
       runningControls: document.getElementById("runningControls"),
@@ -83,20 +86,7 @@ const meditation = {
       stopBtn: document.getElementById("stopBtn"),
     };
 
-    // Кнопки минут.
-    const options = [3, 5, 10, 15, 20, 30];
-    options.forEach((m) => {
-      const b = document.createElement("button");
-      b.className = "min-chip" + (m === this.minutes ? " selected" : "");
-      b.innerHTML = `${m}<span class="unit">мин</span>`;
-      b.addEventListener("click", () => {
-        this.minutes = m;
-        this.el.minutesRow.querySelectorAll(".min-chip").forEach((c) => c.classList.remove("selected"));
-        b.classList.add("selected");
-        this.updateDisplay(m * 60);
-      });
-      this.el.minutesRow.appendChild(b);
-    });
+    this.buildPicker();
 
     // Кнопки звука.
     const sounds = [
@@ -119,8 +109,40 @@ const meditation = {
 
     this.el.startBtn.addEventListener("click", () => this.start());
     this.el.stopBtn.addEventListener("click", () => this.reset());
+  },
 
-    this.updateDisplay(this.minutes * 60);
+  // Прокручиваемый пикер минут в стиле часов iPhone.
+  buildPicker() {
+    const list = this.el.pickerList;
+    list.innerHTML = "";
+    for (let m = 1; m <= this.MAX_MIN; m++) {
+      const li = document.createElement("li");
+      li.textContent = m;
+      li.dataset.min = m;
+      list.appendChild(li);
+    }
+
+    const refresh = () => {
+      const idx = Math.round(list.scrollTop / this.ITEM_H);
+      const m = Math.min(this.MAX_MIN, Math.max(1, idx + 1));
+      if (m !== this.minutes) {
+        this.minutes = m;
+        if (navigator.vibrate) navigator.vibrate(4);
+      }
+      [...list.children].forEach((li, i) =>
+        li.classList.toggle("on", i === idx)
+      );
+    };
+
+    list.addEventListener("scroll", () => {
+      window.requestAnimationFrame(refresh);
+    });
+
+    // Стартовое значение.
+    requestAnimationFrame(() => {
+      list.scrollTop = (this.minutes - 1) * this.ITEM_H;
+      refresh();
+    });
   },
 
   updateDisplay(sec) {
@@ -142,10 +164,10 @@ const meditation = {
     this.el.runningControls.classList.remove("hidden");
     this.el.circle.classList.add("breathing");
 
-    // Звук + колокольчик начала.
-    ambient.bell();
+    // Мягкий колокольчик начала + плавное нарастание фонового звука.
+    ambient.bell(0.4);
     if (this.sound !== "none") {
-      setTimeout(() => { if (this.running) ambient.start(this.sound); }, 700);
+      setTimeout(() => { if (this.running) ambient.start(this.sound, 4); }, 500);
     }
 
     this.interval = setInterval(() => this.tick(), 500);
@@ -162,17 +184,19 @@ const meditation = {
     clearInterval(this.interval);
     this.interval = null;
     this.running = false;
-    ambient.fadeOutStop(2);
-    setTimeout(() => ambient.bell(), 400);
+    this.updateDisplay(0);
+    // Плавное затухание фона, затем хрустальный колокольчик.
+    ambient.fadeOutStop(3.5);
+    setTimeout(() => ambient.bell(0.7), 3200);
     this.el.circle.classList.remove("breathing");
-    setTimeout(() => this.reset(), 4500);
+    setTimeout(() => this.reset(), 9000);
   },
 
   reset() {
     clearInterval(this.interval);
     this.interval = null;
     this.running = false;
-    ambient.fadeOutStop(1);
+    ambient.fadeOutStop(1.2);
     this.el.circle.classList.remove("breathing");
     this.el.setup.classList.remove("hidden");
     this.el.runningControls.classList.add("hidden");

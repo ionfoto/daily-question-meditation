@@ -30,22 +30,26 @@
     <!-- Экран: Медитация -->
     <section id="screen-meditate" class="screen">
       <div class="med-inner">
-        <div class="label">Медитация</div>
-
-        <div class="timer-display" id="timerDisplay">05:00</div>
-
-        <div class="breath-circle" id="breathCircle"></div>
-
+        <!-- Настройка -->
         <div class="controls" id="setupControls">
-          <div class="minutes-row" id="minutesRow"></div>
+          <div class="label">Медитация</div>
 
-          <div class="sound-label">Звук</div>
+          <div class="picker" id="minutePicker">
+            <ul class="picker-list" id="pickerList"></ul>
+            <div class="picker-band"></div>
+            <div class="picker-unit">мин</div>
+          </div>
+
           <div class="sound-row" id="soundRow"></div>
 
           <button class="btn-primary" id="startBtn">Начать</button>
         </div>
 
+        <!-- Идёт медитация -->
         <div class="controls running hidden" id="runningControls">
+          <div class="breath-circle" id="breathCircle">
+            <span class="timer-display" id="timerDisplay">05:00</span>
+          </div>
           <button class="btn-ghost" id="stopBtn">Завершить</button>
         </div>
       </div>
@@ -64,11 +68,8 @@
     </button>
   </nav>
 
-  <!-- Аудио: реальные файлы играют в фоне и в беззвучном режиме -->
-  <audio id="aud-pad" src="audio/pad.wav" preload="auto" loop playsinline></audio>
-  <audio id="aud-rain" src="audio/rain.wav" preload="auto" loop playsinline></audio>
-  <audio id="aud-ocean" src="audio/ocean.wav" preload="auto" loop playsinline></audio>
-  <audio id="aud-bell" src="audio/bell.wav" preload="auto" playsinline></audio>
+  <!-- Выход звука через медиа-элемент: позволяет играть в беззвучном режиме -->
+  <audio id="aud-stream" playsinline></audio>
 
   <script src="questions.js"></script>
   <script src="sound.js"></script>

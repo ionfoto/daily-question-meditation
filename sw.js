@@ -1,5 +1,5 @@
 // Service worker: кэширует приложение, чтобы оно работало без интернета.
-const CACHE = "vopros-dnya-v5";
+const CACHE = "vopros-dnya-v6";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,7 +14,6 @@ const ASSETS = [
   "./audio/pad.wav",
   "./audio/rain.wav",
   "./audio/ocean.wav",
-  "./audio/bell.wav",
 ];
 
 self.addEventListener("install", (e) => {
