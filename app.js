@@ -133,9 +133,10 @@ const meditation = {
     // Разблокировать аудио строго внутри касания (требование iOS).
     ambient.unlock();
 
-    this.remaining = this.minutes * 60;
+    // Отсчёт по «реальному времени», чтобы таймер не сбивался при блокировке экрана.
+    this.endTime = Date.now() + this.minutes * 60 * 1000;
     this.running = true;
-    this.updateDisplay(this.remaining);
+    this.updateDisplay(this.minutes * 60);
 
     this.el.setup.classList.add("hidden");
     this.el.runningControls.classList.remove("hidden");
@@ -144,14 +145,17 @@ const meditation = {
     // Звук + колокольчик начала.
     ambient.bell();
     if (this.sound !== "none") {
-      setTimeout(() => { if (this.running) ambient.start(this.sound); }, 600);
+      setTimeout(() => { if (this.running) ambient.start(this.sound); }, 700);
     }
 
-    this.interval = setInterval(() => {
-      this.remaining--;
-      this.updateDisplay(Math.max(0, this.remaining));
-      if (this.remaining <= 0) this.finish();
-    }, 1000);
+    this.interval = setInterval(() => this.tick(), 500);
+  },
+
+  tick() {
+    if (!this.running) return;
+    const left = Math.round((this.endTime - Date.now()) / 1000);
+    this.updateDisplay(Math.max(0, left));
+    if (left <= 0) this.finish();
   },
 
   finish() {
@@ -180,7 +184,13 @@ const meditation = {
 document.addEventListener("DOMContentLoaded", () => {
   initQuestion();
   initTabs();
+  ambient.init();
   meditation.init();
+
+  // При возврате в приложение пересчитываем таймер по реальному времени.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) meditation.tick();
+  });
 
   // Регистрация service worker для офлайн-работы.
   if ("serviceWorker" in navigator) {

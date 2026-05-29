@@ -61,12 +61,12 @@ body { -webkit-user-select: none; user-select: none; }
   letter-spacing: -0.01em;
 }
 
-.reflection { margin-top: 32px; flex: 1; display: flex; flex-direction: column; }
+.reflection { margin-top: 32px; display: flex; flex-direction: column; }
 
 #reflectionInput {
   width: 100%;
-  flex: 1;
-  min-height: 140px;
+  height: 120px;
+  min-height: 120px;
   resize: none;
   border: 1px solid var(--border);
   background: var(--card);
