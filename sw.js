@@ -1,5 +1,5 @@
 // Service worker: кэширует приложение, чтобы оно работало без интернета.
-const CACHE = "vopros-dnya-v6";
+const CACHE = "vopros-dnya-v7";
 const ASSETS = [
   "./",
   "./index.html",

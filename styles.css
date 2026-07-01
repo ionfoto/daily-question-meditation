@@ -39,7 +39,11 @@ body { -webkit-user-select: none; user-select: none; }
 }
 
 .screen { display: none; min-height: 100%; }
-.screen.active { display: flex; flex-direction: column; }
+.screen.active { display: flex; flex-direction: column; animation: screen-in 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .label {
   display: inline-block;
@@ -125,12 +129,17 @@ body { -webkit-user-select: none; user-select: none; }
 }
 .med-inner { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
 
+/* Цифры отсчёта: строго по центру круга, неподвижны (tabular-nums),
+   не масштабируются вместе с пульсацией — как в таймере iOS. */
 .timer-display {
-  font-size: 46px;
-  font-weight: 200;
+  position: relative;
+  z-index: 2;
+  font-size: 48px;
+  font-weight: 300;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
-  background: linear-gradient(180deg, #ffffff 0%, #c7c8e2 100%);
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0.02em;
+  background: linear-gradient(180deg, #ffffff 0%, #cfd0ea 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -141,44 +150,61 @@ body { -webkit-user-select: none; user-select: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
+  width: 210px;
+  height: 210px;
   margin: 8px 0 30px;
-  background:
-    radial-gradient(circle at 50% 38%, rgba(157,139,255,0.55), rgba(94,215,208,0.16) 55%, transparent 72%);
-  border: 1px solid var(--border-strong);
 }
 /* Переливающийся ореол: вращающийся конический градиент. */
 .breath-circle::before {
   content: "";
   position: absolute;
-  inset: -3px;
+  inset: -4px;
   border-radius: 50%;
   background: conic-gradient(from 0deg,
-    #9d8bff, #6aa6ff, #5ed7d0, #9d8bff, #c08bff, #5ed7d0, #9d8bff);
-  filter: blur(7px);
-  opacity: 0.55;
-  z-index: -1;
-  animation: shimmer 7s linear infinite;
+    #9d8bff, #6aa6ff, #5ed7d0, #c08bff, #6aa6ff, #5ed7d0, #9d8bff);
+  filter: blur(9px);
+  opacity: 0.5;
+  z-index: 0;
+  animation: shimmer 8s linear infinite;
 }
 .breath-circle::after {
   content: "";
   position: absolute;
-  inset: -2px;
+  inset: -6px;
   border-radius: 50%;
   background: var(--grad-accent);
-  opacity: 0.16;
-  filter: blur(22px);
-  z-index: -2;
+  opacity: 0.14;
+  filter: blur(26px);
+  z-index: -1;
 }
 @keyframes shimmer {
   to { transform: rotate(360deg); }
 }
-.breath-circle.breathing { animation: breathe 11s ease-in-out infinite; }
+
+/* Пульсирующее «тело» шарика — масштабируется отдельно от цифр. */
+.breath-pulse {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(180,166,255,0.75), rgba(122,190,255,0.30) 48%, rgba(94,215,208,0.10) 68%, transparent 78%);
+  border: 1px solid var(--border-strong);
+  box-shadow: inset 0 0 40px rgba(180,166,255,0.25);
+  transform: scale(0.9);
+  will-change: transform, opacity;
+}
+/* Мягкая «дежурная» пульсация, пока медитация не запущена. */
+.breath-pulse { animation: breathe-idle 6s ease-in-out infinite; }
+/* Во время медитации — более выраженное «дыхание» (специфичнее, поэтому перекрывает). */
+.breath-circle.breathing .breath-pulse { animation: breathe 10s ease-in-out infinite; }
+@keyframes breathe-idle {
+  0%, 100% { transform: scale(0.9);  opacity: 0.9; }
+  50%      { transform: scale(0.98); opacity: 1; }
+}
 @keyframes breathe {
-  0%, 100% { transform: scale(0.82); }
-  45%      { transform: scale(1.08); }
+  0%, 100% { transform: scale(0.78); opacity: 0.85; }
+  45%      { transform: scale(1.06); opacity: 1; }
 }
 
 .controls { width: 100%; max-width: 360px; }
@@ -188,15 +214,15 @@ body { -webkit-user-select: none; user-select: none; }
 /* ===== Пикер минут в стиле часов iPhone ===== */
 .picker {
   position: relative;
-  height: 162px; /* 3 строки по 54px */
-  margin: 8px 0 26px;
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 28%, #000 72%, transparent);
-  mask-image: linear-gradient(180deg, transparent, #000 28%, #000 72%, transparent);
+  height: 170px; /* 5 строк по 34px */
+  margin: 10px 0 26px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
 }
 .picker-list {
   list-style: none;
   margin: 0;
-  padding: 54px 0; /* чтобы первый/последний пункт вставали по центру */
+  padding: 68px 0; /* (170-34)/2, чтобы первый/последний пункт вставали по центру */
   height: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
@@ -205,23 +231,24 @@ body { -webkit-user-select: none; user-select: none; }
 }
 .picker-list::-webkit-scrollbar { display: none; }
 .picker-list li {
-  height: 54px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   scroll-snap-align: center;
-  font-size: 24px;
+  scroll-snap-stop: always;
+  /* Одинаковый размер у всех строк — как в iOS, поэтому ничего не «прыгает». */
+  font-size: 25px;
   font-weight: 500;
-  color: var(--muted);
-  opacity: 0.4;
-  transition: opacity 0.18s, transform 0.18s, color 0.18s;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  opacity: 0.28;
+  transition: opacity 0.16s ease, color 0.16s ease;
 }
 .picker-list li.on {
   opacity: 1;
   color: var(--text);
-  font-size: 30px;
-  font-weight: 700;
-  transform: scale(1.05);
+  font-weight: 600;
 }
 /* Центральная полоса выбора. */
 .picker-band {
@@ -229,16 +256,17 @@ body { -webkit-user-select: none; user-select: none; }
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 116px;
-  height: 50px;
-  border-radius: 14px;
-  background: var(--surface);
+  width: 120px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--surface-2);
   border: 1px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 6px 18px rgba(0,0,0,0.18);
   pointer-events: none;
 }
 .picker-unit {
   position: absolute;
-  left: calc(50% + 44px);
+  left: calc(50% + 40px);
   top: 50%;
   transform: translateY(-50%);
   font-size: 14px;

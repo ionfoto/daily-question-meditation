@@ -70,7 +70,7 @@ const meditation = {
   running: false,
 
   el: {},
-  ITEM_H: 54,
+  ITEM_H: 34,
   MAX_MIN: 60,
 
   init() {
@@ -122,9 +122,13 @@ const meditation = {
       list.appendChild(li);
     }
 
+    const clampIdx = () =>
+      Math.min(this.MAX_MIN - 1, Math.max(0, Math.round(list.scrollTop / this.ITEM_H)));
+
+    // Подсветка текущего значения во время прокрутки.
     const refresh = () => {
-      const idx = Math.round(list.scrollTop / this.ITEM_H);
-      const m = Math.min(this.MAX_MIN, Math.max(1, idx + 1));
+      const idx = clampIdx();
+      const m = idx + 1;
       if (m !== this.minutes) {
         this.minutes = m;
         if (navigator.vibrate) navigator.vibrate(4);
@@ -134,8 +138,22 @@ const meditation = {
       );
     };
 
+    // Точная «доводка» после остановки прокрутки — чтобы значение
+    // вставало ровно по центру и не съезжало (как в часах iOS).
+    let settleTimer = null;
+    const settle = () => {
+      const idx = clampIdx();
+      const target = idx * this.ITEM_H;
+      if (Math.abs(list.scrollTop - target) > 0.5) {
+        list.scrollTo({ top: target, behavior: "smooth" });
+      }
+      refresh();
+    };
+
     list.addEventListener("scroll", () => {
       window.requestAnimationFrame(refresh);
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(settle, 90);
     });
 
     // Стартовое значение.
