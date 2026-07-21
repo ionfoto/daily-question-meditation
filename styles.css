@@ -45,6 +45,8 @@ body { -webkit-user-select: none; user-select: none; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+.hidden { display: none !important; }
+
 .label {
   display: inline-block;
   font-size: 12px;
@@ -109,15 +111,36 @@ body { -webkit-user-select: none; user-select: none; }
 }
 #reflectionInput::placeholder { color: var(--muted); }
 
-.saved-hint {
-  height: 18px;
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--accent-2);
-  opacity: 0;
-  transition: opacity 0.3s;
+.btn-send { margin-top: 16px; }
+
+/* Экран после отправки ответа. */
+.reflection-done {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  animation: screen-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.saved-hint.show { opacity: 1; }
+.done-check {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 30px;
+  color: #0c0b16;
+  background: var(--grad-accent);
+  box-shadow: 0 12px 30px rgba(110, 130, 255, 0.30);
+}
+.done-text {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--muted);
+  font-weight: 500;
+}
 
 /* ===== Медитация ===== */
 #screen-meditate { display: none; }
@@ -320,6 +343,156 @@ body { -webkit-user-select: none; user-select: none; }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+
+/* ===== Калькулятор бега ===== */
+.dist-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.dist-chip { flex: 1 1 auto; text-align: center; }
+
+.custom-dist {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.custom-dist input {
+  width: 110px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 20px;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.custom-dist input:focus { outline: none; border-color: var(--border-strong); background: var(--surface-2); }
+.custom-unit { color: var(--muted); font-size: 15px; }
+
+.run-inputs {
+  display: flex;
+  gap: 14px;
+  margin: 6px 0 10px;
+}
+.tfield {
+  flex: 1;
+  padding: 14px 12px 12px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.tfield-label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-align: center;
+}
+/* Рассчитанное (не редактируемое сейчас) поле мягко подсвечивается. */
+.tfield.solved {
+  border-color: rgba(157, 139, 255, 0.45);
+  box-shadow: 0 0 18px rgba(157, 139, 255, 0.12);
+}
+.tfield.solved .tfield-label { color: var(--accent); }
+.tfield-inputs { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.seg {
+  width: 44px;
+  padding: 6px 2px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 26px;
+  font-weight: 500;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  -webkit-user-select: text;
+  user-select: text;
+}
+#tH { width: 30px; }
+.seg:focus { outline: none; background: var(--surface-2); }
+.seg::placeholder { color: var(--muted); opacity: 0.6; }
+.colon { color: var(--muted); font-size: 22px; font-weight: 500; }
+
+.speed-line {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin: 4px 0 6px;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card {
+  width: 100%;
+  margin-top: 14px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-align: left;
+}
+.card-title {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.vdot-val { color: var(--accent); letter-spacing: 0.04em; }
+.card-note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.4; }
+
+.row-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 16px;
+}
+.row-line:last-child { border-bottom: none; }
+.row-name { display: flex; align-items: center; gap: 9px; color: var(--text); }
+.row-val { font-variant-numeric: tabular-nums; font-weight: 600; }
+.row-line.current .row-name { color: var(--accent-2); }
+.zone-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+
+/* Сплиты. */
+.splits summary { list-style: none; cursor: pointer; }
+.splits summary::-webkit-details-marker { display: none; }
+.splits-title::after { content: " ▸"; color: var(--muted); }
+.splits[open] .splits-title::after { content: " ▾"; }
+.splits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 18px;
+  margin-top: 10px;
+}
+.split-cell {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.split-km { color: var(--muted); }
+.split-t { font-weight: 600; }
+.split-cell.finish .split-km { color: var(--accent-2); }
+
+#screen-run { padding-bottom: 10px; }
 
 /* ===== Нижняя навигация ===== */
 .tabbar {

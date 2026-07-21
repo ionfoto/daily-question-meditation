@@ -21,9 +21,13 @@
         <div class="label">Вопрос дня</div>
         <h1 class="question" id="questionText">…</h1>
       </div>
-      <div class="reflection">
-        <textarea id="reflectionInput" placeholder="Запишите свои мысли… (сохраняется только на этом телефоне)"></textarea>
-        <div class="saved-hint" id="savedHint"></div>
+      <div class="reflection" id="reflectionBlock">
+        <textarea id="reflectionInput" placeholder="Запишите свои мысли…"></textarea>
+        <button class="btn-primary btn-send" id="sendBtn">Отправить</button>
+      </div>
+      <div class="reflection-done hidden" id="reflectionDone">
+        <div class="done-check">✓</div>
+        <div class="done-text">Ответ отправлен.<br>Новый вопрос — завтра.</div>
       </div>
     </section>
 
@@ -55,6 +59,56 @@
         </div>
       </div>
     </section>
+
+    <!-- Экран: Калькулятор бега -->
+    <section id="screen-run" class="screen">
+      <div class="label">Калькулятор бега</div>
+
+      <div class="dist-row" id="distRow"></div>
+      <div class="custom-dist hidden" id="customDistWrap">
+        <input type="number" id="customDist" inputmode="decimal" min="0.1" step="0.1" placeholder="7.5" />
+        <span class="custom-unit">км</span>
+      </div>
+
+      <div class="run-inputs">
+        <div class="tfield" id="timeField">
+          <div class="tfield-label">Время</div>
+          <div class="tfield-inputs">
+            <input class="seg" id="tH" inputmode="numeric" maxlength="1" placeholder="0" aria-label="часы" />
+            <span class="colon">:</span>
+            <input class="seg" id="tM" inputmode="numeric" maxlength="2" placeholder="25" aria-label="минуты" />
+            <span class="colon">:</span>
+            <input class="seg" id="tS" inputmode="numeric" maxlength="2" placeholder="00" aria-label="секунды" />
+          </div>
+        </div>
+        <div class="tfield" id="paceField">
+          <div class="tfield-label">Темп, /км</div>
+          <div class="tfield-inputs">
+            <input class="seg" id="pM" inputmode="numeric" maxlength="2" aria-label="минуты темпа" />
+            <span class="colon">:</span>
+            <input class="seg" id="pS" inputmode="numeric" maxlength="2" aria-label="секунды темпа" />
+          </div>
+        </div>
+      </div>
+      <div class="speed-line" id="speedLine">—</div>
+
+      <div class="card" id="predictCard">
+        <div class="card-title">Прогноз результатов</div>
+        <div id="predictRows"></div>
+        <div class="card-note">По формуле Ригеля. Марафонский прогноз обычно чуть оптимистичен.</div>
+      </div>
+
+      <div class="card" id="vdotCard">
+        <div class="card-title">Тренировочные темпы · VDOT <span class="vdot-val" id="vdotVal">—</span></div>
+        <div id="vdotRows"></div>
+        <div class="card-note">По методике Джека Дэниелса — темпы на километр.</div>
+      </div>
+
+      <details class="card splits" id="splitsCard">
+        <summary class="card-title splits-title">Сплиты по километрам</summary>
+        <div class="splits-grid" id="splitsGrid"></div>
+      </details>
+    </section>
   </main>
 
   <!-- Нижняя навигация -->
@@ -67,6 +121,10 @@
       <span class="tab-icon">🧘</span>
       <span class="tab-text">Медитация</span>
     </button>
+    <button class="tab" data-screen="screen-run">
+      <span class="tab-icon">🏃</span>
+      <span class="tab-text">Бег</span>
+    </button>
   </nav>
 
   <!-- Выход звука через медиа-элемент: позволяет играть в беззвучном режиме -->
@@ -74,6 +132,7 @@
 
   <script src="questions.js"></script>
   <script src="sound.js"></script>
+  <script src="runcalc.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

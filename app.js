@@ -29,19 +29,38 @@ function initQuestion() {
   document.getElementById("todayDate").textContent = formatDate();
   document.getElementById("questionText").textContent = todaysQuestion();
 
-  // Заметка/рефлексия сохраняется в localStorage по дате.
   const input = document.getElementById("reflectionInput");
-  const hint = document.getElementById("savedHint");
-  const storageKey = `reflection:${dateKey()}`;
-  input.value = localStorage.getItem(storageKey) || "";
+  const block = document.getElementById("reflectionBlock");
+  const done = document.getElementById("reflectionDone");
+  const sendBtn = document.getElementById("sendBtn");
 
-  let saveTimer = null;
+  // Черновик хранится по дате; флаг «отправлено» прячет поле до следующих суток.
+  const draftKey = `reflection:${dateKey()}`;
+  const sentKey = `reflection-sent:${dateKey()}`;
+
+  const showSent = () => {
+    block.classList.add("hidden");
+    done.classList.remove("hidden");
+  };
+
+  if (localStorage.getItem(sentKey)) {
+    showSent();
+    return;
+  }
+
+  // Восстанавливаем черновик (на случай, если переключались между вкладками).
+  input.value = localStorage.getItem(draftKey) || "";
   input.addEventListener("input", () => {
-    localStorage.setItem(storageKey, input.value);
-    clearTimeout(saveTimer);
-    hint.textContent = "Сохранено";
-    hint.classList.add("show");
-    saveTimer = setTimeout(() => hint.classList.remove("show"), 1500);
+    localStorage.setItem(draftKey, input.value);
+  });
+
+  sendBtn.addEventListener("click", () => {
+    if (!input.value.trim()) { input.focus(); return; }
+    // Написанное исчезает: помечаем день как отправленный и стираем черновик.
+    localStorage.setItem(sentKey, "1");
+    localStorage.removeItem(draftKey);
+    input.value = "";
+    showSent();
   });
 }
 
@@ -228,6 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   ambient.init();
   meditation.init();
+  runCalc.init();
 
   // При возврате в приложение пересчитываем таймер по реальному времени.
   document.addEventListener("visibilitychange", () => {
